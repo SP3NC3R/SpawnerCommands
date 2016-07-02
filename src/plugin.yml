@@ -1,0 +1,4 @@
+name: SpawnerCommands
+version: 1.0
+main: me.SP3NC3RXD.spawnercommands.SpawnerCommands
+description: Execute commands when a spawner breaks.
