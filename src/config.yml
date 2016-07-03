@@ -1,1 +1,32 @@
+# Below are the list of spawners which you can assign commands to which will be executed upon being broken
+# Use %player% to select the player that broke the spawner.
+# Color codes work too! List of color codes -> http://ess.khhq.net/mc/
+# (Color codes may not work in certain commands)
+# Messages must go inside '' to use color codes. See examples below.
+
+#  - MORE INFO -
+# Do not put slashes in front of the commands as they will be executed in the console.
+# Add more messages or commands by adding more dashes. (- <- dash)
+# If you don't want anything to happen when someone breaks the spawner, leave the commands and/or messages blank.
+# If you want to charge players money
+
+spawners:
+  pig:
+    commands:
+      - say This is a command example, %player%.
+      - give %player% dirt 1
+      - say Dirt is dirty
+    messages:
+      - '&aHello there, &c%player%&a. This is an example of a color code message.'
+      - This is an example of a regular message without color codes
+      - Have fun!
+    chargeMoney: false
+      amount:
+
+# For whatever reason you want to disable the plugin, you can do so here
+disablePlugin: false
+
+# Debug mode is developer mode. I use it to test the plugin and make sure everything works right.
+# To enable set to true; to disable set to false.
 debugMode: false
+

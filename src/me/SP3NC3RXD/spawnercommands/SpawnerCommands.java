@@ -1,8 +1,14 @@
 package me.SP3NC3RXD.spawnercommands;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.CreatureSpawner;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -11,28 +17,99 @@ import org.bukkit.plugin.java.JavaPlugin;
  * Created by Spencer on 7/2/2016.
  */
 @SuppressWarnings("deprecation")
-public class SpawnerCommands extends JavaPlugin {
-
+public class SpawnerCommands extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         this.saveDefaultConfig();
         PluginManager pm = getServer().getPluginManager();
+        pm.registerEvents((this), this);
+
+        if (this.getConfig().getBoolean("disablePlugin")) {
+            getLogger().info("Disabled is set to true in the config.");
+            pm.disablePlugin(this);
+        }
     }
 
-    String debug = ChatColor.BOLD + "" + ChatColor.BLUE + "DEBUG> " + ChatColor.GRAY + "";
+    String debugPrefix = ChatColor.BOLD + "" + ChatColor.BLUE + "DEBUG> " + ChatColor.GRAY + "";
+    String error = ChatColor.BOLD + "" + ChatColor.RED + "ERROR> " + ChatColor.GRAY + "";
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
-        e.setCancelled(true);
+
         Player p = e.getPlayer();
-        System.out.println("block broken by: " + p);
-        p.sendMessage("waddup");
+        debug(p, "Testing if the block broken is a mob spawner...");
+
+        Block block = e.getBlock();
+
+        if (block.getType() == Material.MOB_SPAWNER) {
+
+            debug(p, "Success! Testing for spawner type..");
+            CreatureSpawner cs = (CreatureSpawner) e.getBlock().getState();
+
+
+
+
+            if (cs.getSpawnedType() == EntityType.COW) {
+                debug(p, "Spawner type identified. Type: Pig.");
+                debug(p, "Testing permission..");
+                testPermission(p, "spawnercommands.pig");
+                debug(p, "Executing commands...");
+                dispatchCommands(p, "spawners.pig.commands");
+                debug(p, "Executing messages..");
+                dispatchMessages(p, "spawners.pig.messages");
+            } else {
+                debug(p, error + "Spawner type couldn't be identified.");
+                p.sendMessage(error + "Spawner type couldn't be identified. Please try updating the plugin " +
+                        "or try reporting the problem to the developer.");
+                return;
+            }
+
+
+
+
+        } else {
+            debug(p, "Not a mob spawner. Returning.");
+                    return;
+        }
+    }
+
+    /*
+    =*=*=*= METHODS =*=*=*=
+     */
+
+    public void debug(Player p, String msg) {
         if (!this.getConfig().getBoolean("debugMode"))
         {
             return;
         } else {
-            p.sendMessage(debug + "Block Broken");
+            p.sendMessage(debugPrefix + msg);
             return;
         }
+    }
+
+    public void dispatchMessages(Player p, String string) {
+        for (String chocolate : this.getConfig().getStringList(string)) {
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', chocolate.replaceAll("%player%", p.getName())));
+        }
+    }
+
+    public void dispatchCommands(Player p, String string) {
+        for (String chocolate : this.getConfig().getStringList(string)) {
+            Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), chocolate.replaceAll("%player%", p.getName()));
+        }
+
+    }
+    public void testPermission(Player p, String perm) {
+        if (!p.hasPermission(perm) || !p.isOp()) {
+            debug(p, "Permission denied. You are not op, nor do you have the permission node. Returning.");
+            return;
+        } else {
+            if (p.hasPermission(perm) || p.isOp()) {
+                debug(p, "Permission granted! You either have the permission node or you're op.");
+            }
+        }
+    }
+    public void chargeMoney(Player p, int money) {
+        
     }
 }
