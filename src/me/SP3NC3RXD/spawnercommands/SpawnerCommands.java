@@ -1,5 +1,6 @@
 package me.SP3NC3RXD.spawnercommands;
 
+import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -11,13 +12,19 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import net.milkbowl.vault.economy.Economy;
 
 /**
  * Created by Spencer on 7/2/2016.
  */
 @SuppressWarnings("deprecation")
 public class SpawnerCommands extends JavaPlugin implements Listener {
+
+    public static Economy econ = null;
+
     @Override
     public void onEnable() {
         this.saveDefaultConfig();
@@ -27,6 +34,12 @@ public class SpawnerCommands extends JavaPlugin implements Listener {
         if (this.getConfig().getBoolean("disablePlugin")) {
             getLogger().info("Disabled is set to true in the config.");
             pm.disablePlugin(this);
+        }
+
+        if (!this.getConfig().getBoolean("chargeMoney")) {
+            return;
+        } else {
+            setupEconomy();
         }
     }
 
@@ -53,6 +66,8 @@ public class SpawnerCommands extends JavaPlugin implements Listener {
                 debug(p, "Spawner type identified. Type: Pig.");
                 debug(p, "Testing permission..");
                 testPermission(p, "spawnercommands.pig");
+                debug(p, "Testing for chargeMoney boolean..");
+                chargeMoney(p, "spawners.pig.chargemoney", "spawners.pig.amount", "PIG");
                 debug(p, "Executing commands...");
                 dispatchCommands(p, "spawners.pig.commands");
                 debug(p, "Executing messages..");
@@ -109,7 +124,43 @@ public class SpawnerCommands extends JavaPlugin implements Listener {
             }
         }
     }
-    public void chargeMoney(Player p, int money) {
-        
+    public void chargeMoney(Player p, String booleanPath, String intPath, String type) {
+        if (!this.getConfig().getBoolean(booleanPath)) {
+            return;
+        } else {
+            debug(p, "Charge money boolean set to true. Using vault currency..");
+            EconomyResponse withdraw = econ.withdrawPlayer(p.getName(), this.getConfig().getInt(intPath));
+
+            if (withdraw.transactionSuccess()) {
+                p.sendMessage(ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("spawners.pig.charge.chargeMessage")
+                        .replaceAll("%player%", p.getName())
+                        .replaceAll("%amount%", this.getConfig().getString(intPath))
+                        .replaceAll("%spawner%", type)
+                ));
+                return;
+            } else {
+                p.sendMessage(ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("insufficientFunds")
+                        .replaceAll("%player%", p.getName())
+                        .replaceAll("%amount%", this.getConfig().getString(intPath))
+                        .replaceAll("%spawner%", type)
+                ));
+                return;
+            }
+        }
     }
+
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            getLogger().severe("You must have Vault to charge players money!");
+            return true;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            getLogger().severe("Please get a vault supported economy if you want to use a currency!");
+            return true;
+        }
+        econ = rsp.getProvider();
+        return econ != null;
+    }
+
 }

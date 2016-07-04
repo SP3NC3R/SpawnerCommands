@@ -8,7 +8,9 @@
 # Do not put slashes in front of the commands as they will be executed in the console.
 # Add more messages or commands by adding more dashes. (- <- dash)
 # If you don't want anything to happen when someone breaks the spawner, leave the commands and/or messages blank.
-# If you want to charge players money
+# You MUST have vault if you want to charge players through your economy plugin.
+# 'charge' is how much a person will be charged if 'chargeMoney' is set to true.
+# The 'chargeMessage' is sent after the player gets charged for breaking the spawner.
 
 spawners:
   pig:
@@ -20,13 +22,25 @@ spawners:
       - '&aHello there, &c%player%&a. This is an example of a color code message.'
       - This is an example of a regular message without color codes
       - Have fun!
-    chargeMoney: false
-      amount:
+    charge: '12'
+      chargeMessage: '&a%amount% has been removed from your account.'
+
+
+# If you want to charge players money with your economy plugin, you can change this to true.
+# You MUST have vault as well as a vault supported economy.
+chargeMoney: false
+
+# This message will be given to players that can't afford to break the spawner.
+# Use %amount% to print the amount they need, %spawner% to print the spawner, and %player% to print the player.
+insufficientFunds: '&cInsufficient funds. It costs %amount% to break a(n) %spawner% mob spawner.'
 
 # For whatever reason you want to disable the plugin, you can do so here
+# Set to true to disable the plugin; set to false to enable.
 disablePlugin: false
 
 # Debug mode is developer mode. I use it to test the plugin and make sure everything works right.
 # To enable set to true; to disable set to false.
 debugMode: false
+
+# END OF CONFIGURATION!
 
