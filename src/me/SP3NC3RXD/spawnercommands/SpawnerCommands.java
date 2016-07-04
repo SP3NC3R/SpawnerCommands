@@ -67,7 +67,7 @@ public class SpawnerCommands extends JavaPlugin implements Listener {
                 debug(p, "Testing permission..");
                 testPermission(p, "spawnercommands.pig");
                 debug(p, "Testing for chargeMoney boolean..");
-                chargeMoney(p, "spawners.pig.chargemoney", "spawners.pig.amount", "PIG");
+                chargeMoney(p, "spawners.pig.chargemoney", "spawners.pig.amount", "PIG", "spawners.pig.charge.chargeMessage");
                 debug(p, "Executing commands...");
                 dispatchCommands(p, "spawners.pig.commands");
                 debug(p, "Executing messages..");
@@ -124,7 +124,7 @@ public class SpawnerCommands extends JavaPlugin implements Listener {
             }
         }
     }
-    public void chargeMoney(Player p, String booleanPath, String intPath, String type) {
+    public void chargeMoney(Player p, String booleanPath, String intPath, String type, String mPath) {
         if (!this.getConfig().getBoolean(booleanPath)) {
             return;
         } else {
@@ -132,7 +132,7 @@ public class SpawnerCommands extends JavaPlugin implements Listener {
             EconomyResponse withdraw = econ.withdrawPlayer(p.getName(), this.getConfig().getInt(intPath));
 
             if (withdraw.transactionSuccess()) {
-                p.sendMessage(ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("spawners.pig.charge.chargeMessage")
+                p.sendMessage(ChatColor.translateAlternateColorCodes('&', this.getConfig().getString(mPath)
                         .replaceAll("%player%", p.getName())
                         .replaceAll("%amount%", this.getConfig().getString(intPath))
                         .replaceAll("%spawner%", type)

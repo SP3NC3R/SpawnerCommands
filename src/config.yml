@@ -23,7 +23,7 @@ spawners:
       - This is an example of a regular message without color codes
       - Have fun!
     charge: '12'
-      chargeMessage: '&a%amount% has been removed from your account.'
+      chargeMessage: '&a%amount% %player% %spawner% has been removed from your account.'
 
 
 # If you want to charge players money with your economy plugin, you can change this to true.
