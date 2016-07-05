@@ -65,9 +65,13 @@ public class SpawnerCommands extends JavaPlugin implements Listener {
             if (cs.getSpawnedType() == EntityType.COW) {
                 debug(p, "Spawner type identified. Type: Pig.");
                 debug(p, "Testing permission..");
-                testPermission(p, "spawnercommands.pig");
+                if (!testPermission(p, "spawnercommands.pig")) {
+                    return;
+                }
                 debug(p, "Testing for chargeMoney boolean..");
-                chargeMoney(p, "spawners.pig.chargemoney", "spawners.pig.amount", "PIG", "spawners.pig.charge.chargeMessage");
+                if (!chargeMoney(p, "spawners.pig.charge", "PIG", "spawners.pig.chargeMessage")) {
+                    return;
+                }
                 debug(p, "Executing commands...");
                 dispatchCommands(p, "spawners.pig.commands");
                 debug(p, "Executing messages..");
@@ -114,19 +118,22 @@ public class SpawnerCommands extends JavaPlugin implements Listener {
         }
 
     }
-    public void testPermission(Player p, String perm) {
+    public boolean testPermission(Player p, String perm) {
         if (!p.hasPermission(perm) || !p.isOp()) {
             debug(p, "Permission denied. You are not op, nor do you have the permission node. Returning.");
-            return;
+            return false;
         } else {
             if (p.hasPermission(perm) || p.isOp()) {
                 debug(p, "Permission granted! You either have the permission node or you're op.");
+                return true;
             }
         }
+        return true;
     }
-    public void chargeMoney(Player p, String booleanPath, String intPath, String type, String mPath) {
-        if (!this.getConfig().getBoolean(booleanPath)) {
-            return;
+    public boolean chargeMoney(Player p, String intPath, String type, String mPath) {
+        if (!this.getConfig().getBoolean("chargeMoney")) {
+            debug(p, " Charge money is set to false in the config. Returning.");
+            return true;
         } else {
             debug(p, "Charge money boolean set to true. Using vault currency..");
             EconomyResponse withdraw = econ.withdrawPlayer(p.getName(), this.getConfig().getInt(intPath));
@@ -134,17 +141,17 @@ public class SpawnerCommands extends JavaPlugin implements Listener {
             if (withdraw.transactionSuccess()) {
                 p.sendMessage(ChatColor.translateAlternateColorCodes('&', this.getConfig().getString(mPath)
                         .replaceAll("%player%", p.getName())
-                        .replaceAll("%amount%", this.getConfig().getString(intPath))
+                        .replaceAll("%amount%", String.valueOf(this.getConfig().getInt(intPath)))
                         .replaceAll("%spawner%", type)
                 ));
-                return;
+                return true;
             } else {
                 p.sendMessage(ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("insufficientFunds")
                         .replaceAll("%player%", p.getName())
-                        .replaceAll("%amount%", this.getConfig().getString(intPath))
+                        .replaceAll("%amount%", String.valueOf(this.getConfig().getInt(intPath)))
                         .replaceAll("%spawner%", type)
                 ));
-                return;
+                return false;
             }
         }
     }

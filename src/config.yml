@@ -22,9 +22,12 @@ spawners:
       - '&aHello there, &c%player%&a. This is an example of a color code message.'
       - This is an example of a regular message without color codes
       - Have fun!
-    charge: '12'
-      chargeMessage: '&a%amount% %player% %spawner% has been removed from your account.'
+    charge: 12
+    chargeMessage: '&a%amount% %player% %spawner% has been removed from your account.'
 
+
+# Set this to true if you want to use no permissions.
+noPermissions: false
 
 # If you want to charge players money with your economy plugin, you can change this to true.
 # You MUST have vault as well as a vault supported economy.
